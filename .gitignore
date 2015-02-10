@@ -1,0 +1,10 @@
+obj
+bin
+*.user
+*.suo
+*.tmp
+*.pyc
+*.pyc
+.DS_Store
+packages
+src/data/**
