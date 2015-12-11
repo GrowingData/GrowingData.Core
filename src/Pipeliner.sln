@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B106C3
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowingData.Utilities", "..\libs\GrowingData.Utilities\GrowingData.Utilities\GrowingData.Utilities.csproj", "{61B212A8-3A2B-4204-9E9D-F12771430D7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{F53C3553-E42E-4887-9F42-6F23D547A26B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F53C3553-E42E-4887-9F42-6F23D547A26B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F53C3553-E42E-4887-9F42-6F23D547A26B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61B212A8-3A2B-4204-9E9D-F12771430D7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61B212A8-3A2B-4204-9E9D-F12771430D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61B212A8-3A2B-4204-9E9D-F12771430D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61B212A8-3A2B-4204-9E9D-F12771430D7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

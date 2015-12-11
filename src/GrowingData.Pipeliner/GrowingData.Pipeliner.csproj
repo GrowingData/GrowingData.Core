@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GrowingData.Utilities">
-      <HintPath>..\..\..\..\..\GrowingData\GrowingData.Utilities\GrowingData.Utilities\GrowingData.Utilities\bin\Debug\GrowingData.Utilities.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.1.1\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
@@ -76,6 +73,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\GrowingData.Utilities\GrowingData.Utilities\GrowingData.Utilities.csproj">
+      <Project>{61b212a8-3a2b-4204-9e9d-f12771430d7a}</Project>
+      <Name>GrowingData.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
