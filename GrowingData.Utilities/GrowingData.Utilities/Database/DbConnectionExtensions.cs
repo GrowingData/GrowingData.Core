@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Data;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -84,6 +85,11 @@ namespace GrowingData.Utilities {
 							if (p.Value.PropertyType.IsClass) {
 								p.Value.SetValue(obj, null);
 							}
+							// Nullable value like "int?"
+							if (Nullable.GetUnderlyingType(p.Value.PropertyType) != null) {
+								p.Value.SetValue(obj, null);
+								
+							}
 						}
 					}
 				}
@@ -93,6 +99,10 @@ namespace GrowingData.Utilities {
 							p.Value.SetValue(obj, r[p.Key]);
 						} else {
 							if (p.Value.FieldType.IsClass) {
+								p.Value.SetValue(obj, null);
+							}
+							// Nullable value like "int?"
+							if (Nullable.GetUnderlyingType(p.Value.FieldType) != null) {
 								p.Value.SetValue(obj, null);
 							}
 
@@ -209,6 +219,52 @@ namespace GrowingData.Utilities {
 				}
 				return cmd.ExecuteReader();
 			}
+		}
+
+		public static int DumpTSV(this DbConnection cn, string sql, object ps, StreamWriter writer) {
+			StringBuilder output = new StringBuilder();
+
+			int rowCount = 0;
+			using (var cmd = cn.CreateCommand()) {
+				cmd.CommandTimeout = DEFAULT_TIMEOUT;
+				cmd.CommandText = sql;
+				if (ps != null) {
+					foreach (var p in ps.GetType().GetProperties()) {
+						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+					}
+				}
+				using (var reader = cmd.ExecuteReader()) {
+					bool isFirst = true;
+					while (reader.Read()) {
+
+						if (isFirst) {
+
+							List<string> names = new List<string>();
+
+							for (var i = 0; i < reader.FieldCount; i++) {
+								names.Add(reader.GetName(i));
+							}
+							writer.WriteLine(string.Join("\t", names));
+
+							isFirst = false;
+						}
+
+						var rowData = Enumerable.Range(0, reader.FieldCount).Select(i => Serialize(reader[i]));
+
+						writer.WriteLine(string.Join("\t", rowData));
+
+						rowCount++;
+
+						if (rowCount % 1000 == 0) {
+							writer.Flush();
+							System.Diagnostics.Debug.WriteLine(string.Format("Wrote {0} rows", rowCount));
+						}
+					}
+				}
+			}
+
+
+			return rowCount;
 		}
 
 

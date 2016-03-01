@@ -16,6 +16,7 @@ namespace GrowingData.Utilities {
 
 
 		public int Timeout = 100;
+		private object _loadSync = new object();
 
 		private bool _loaded = false;
 		private bool _loading = false;
@@ -52,7 +53,8 @@ namespace GrowingData.Utilities {
 			get {
 
 				if (!_loaded) {
-					throw new InvalidOperationException("Cache not loaded, please check .IsLoaded field before accessing .Cached");
+					Load();
+					//throw new InvalidOperationException("Cache not loaded, please check .IsLoaded field before accessing .Cached");
 				}
 				return _list;
 
@@ -63,6 +65,9 @@ namespace GrowingData.Utilities {
 			get {
 				T obj;
 
+				if (!_loaded) {
+					Load();
+				}
 				if (_map.TryGetValue(key, out obj)) {
 					return obj;
 				}
@@ -80,27 +85,32 @@ namespace GrowingData.Utilities {
 			return count < Timeout;
 		}
 
-		private void Load() {
+		public void Load() {
 			try {
-
-				// If you are loaded, then dont do it again
-				if (_loaded || _loading) {
+				if (_loaded) {
 					return;
 				}
-				_loading = true;
 
-				using (var cn = _fnConnection()) {
-					_list = cn.ExecuteAnonymousSql<T>(_sql, null);
-					_map = _list.ToDictionary(_fnKeySelector);
+				lock (_loadSync) {
+					// If you are loaded, then dont do it again
+					if (_loaded) {
+						return;
+					}
 
+					_loading = true;
+
+					using (var cn = _fnConnection()) {
+						_list = cn.ExecuteAnonymousSql<T>(_sql, null);
+						_map = _list.ToDictionary(_fnKeySelector);
+
+					}
+
+					_loaded = true;
 				}
-
-				_loaded = true;
 			} catch (Exception ex) {
 				Debug.WriteLine("Unable to load cache for {0}, {1}\r\n{2}", typeof(T), ex.Message, ex.StackTrace);
 
 			} finally {
-
 				_loading = false;
 			}
 		}

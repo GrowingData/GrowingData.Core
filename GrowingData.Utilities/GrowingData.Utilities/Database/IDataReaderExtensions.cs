@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 
-namespace GrowingData.TimeSeries {
+namespace GrowingData.Utilities {
 	public static class DataReaderExtensions {
 
 
