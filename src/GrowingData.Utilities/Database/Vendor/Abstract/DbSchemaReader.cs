@@ -9,7 +9,7 @@ using GrowingData.Utilities.Csv;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 	public abstract class DbSchemaReader {
 
 		private Func<DbConnection> _connectionFactory;

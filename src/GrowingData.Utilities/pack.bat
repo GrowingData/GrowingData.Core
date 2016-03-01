@@ -1,0 +1,1 @@
+ ..\.nuget\NuGet.exe pack GrowingData.Utilities.csproj -IncludeReferencedProjects

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 
-namespace GrowingData.Utilities {
+namespace GrowingData.Utilities.Database {
 	public static class DataReaderExtensions {
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 	public class DbColumn
 	 {
 		public string ColumnName;

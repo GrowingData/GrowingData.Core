@@ -8,7 +8,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace GrowingData.Utilities {
+namespace GrowingData.Utilities.Database {
 	public static class DbConnectionExtensions {
 
 		public static int DEFAULT_TIMEOUT = 0;

@@ -5,8 +5,11 @@ using NpgsqlTypes;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using GrowingData.Utilities;
+using GrowingData.Utilities.Csv;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
+
 	public class PostgresqlBulkInserter : DbBulkInserter {
 
 		protected Func<NpgsqlConnection> _connectionFactory;
@@ -33,7 +36,7 @@ namespace GrowingData.Utilities.Csv {
 			using (var cn = _connectionFactory()) {
 				// Make a little cache of the pgTypes
 				var pgTypes = table.Columns
-					.Select(x => PostgresqlDbTypeConverter.Get(x.MungType).PostgresqlDbType)
+					.Select(x => PostgresqlTypeConverter.Get(x.MungType).PostgresqlDbType)
 					.ToList();
 
 				// Not all the columns in the table may be present in the actual reader, so
@@ -71,7 +74,7 @@ namespace GrowingData.Utilities.Csv {
 					var col = new DbColumn(reader.GetName(i), reader.GetFieldType(i));
 					table.Columns.Add(col);
 
-					var type = PostgresqlDbTypeConverter.Get(col.MungType);
+					var type = PostgresqlTypeConverter.Get(col.MungType);
 
 					if (type == null) {
 						throw new Exception($"Unable to load Postgres type for type: {col.MungType.Code}, Column: {col.ColumnName}");
@@ -127,7 +130,7 @@ namespace GrowingData.Utilities.Csv {
 			ddl.Append($"CREATE TABLE \"{tbl.SchemaName}\".\"{tbl.TableName}\" (\r\n");
 
 			foreach (var c in tbl.Columns) {
-				var pgType = PostgresqlDbTypeConverter.Get(c.MungType);
+				var pgType = PostgresqlTypeConverter.Get(c.MungType);
 
 				if (c.ColumnName == "_id_") {
 					ddl.Append($"	\"{c.ColumnName}\" {pgType.CreateColumnDefinition} NOT NULL PRIMARY KEY,\n");
@@ -197,13 +200,13 @@ namespace GrowingData.Utilities.Csv {
 				// Add the new column...
 				if (existing == null) {
 					fromTbl.Columns.Add(c);
-					var pgType = PostgresqlDbTypeConverter.Get(c.MungType);
+					var pgType = PostgresqlTypeConverter.Get(c.MungType);
 					string ddl = $"ALTER TABLE \"{Schema}\".\"{fromTbl.TableName}\" ADD \"{c.ColumnName}\" {pgType.CreateColumnDefinition} NULL";
 					ExecuteCommand(ddl);
 				} else {
 					if (c.MungType != existing.MungType) {
 						var newType = MungType.ExpandType(existing.MungType, c.MungType);
-						var pgType = PostgresqlDbTypeConverter.Get(newType);
+						var pgType = PostgresqlTypeConverter.Get(newType);
 						string ddl = $"ALTER TABLE \"{Schema}\".\"{fromTbl.TableName}\" ALTER COLUMN \"{c.ColumnName}\" TYPE {pgType.CreateColumnDefinition}";
 
 						ExecuteCommand(ddl);

@@ -2,7 +2,7 @@
 using System.Data.Common;
 using Npgsql;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 
 	public class PostgresqlDbSchemaReader : DbSchemaReader {
 		//private NpgsqlConnection _cn;

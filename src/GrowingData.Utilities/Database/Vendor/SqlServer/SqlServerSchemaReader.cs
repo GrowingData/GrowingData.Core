@@ -2,7 +2,7 @@
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 
 	public class SqlServerSchemaReader : DbSchemaReader {
 		//private SqlConnection _cn;

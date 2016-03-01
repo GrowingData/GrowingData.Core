@@ -56,17 +56,18 @@
     <Compile Include="Csv\CsvReader.cs" />
     <Compile Include="Csv\CsvSerializer.cs" />
     <Compile Include="Csv\CsvWriter.cs" />
-    <Compile Include="Csv\Schema\DbColumn.cs" />
-    <Compile Include="Csv\Schema\DbTable.cs" />
-    <Compile Include="Csv\Schema\MungType.cs" />
-    <Compile Include="Csv\Vendor\Abstract\DbBulkInserter.cs" />
-    <Compile Include="Csv\Vendor\Abstract\DbSchemaReader.cs" />
-    <Compile Include="Csv\Vendor\Abstract\DbTypeConverter.cs" />
-    <Compile Include="Csv\Vendor\PostgreSQL\PostgresqlBulkInserter.cs" />
-    <Compile Include="Csv\Vendor\PostgreSQL\PostgresqlDbSchemaReader.cs" />
-    <Compile Include="Csv\Vendor\PostgreSQL\PostgresqlDbTypeConverter.cs" />
-    <Compile Include="Csv\Vendor\SqlServer\SqlServerDbTypeConverter.cs" />
-    <Compile Include="Csv\Vendor\SqlServer\SqlServerSchemaReader.cs" />
+    <Compile Include="Database\Schema\DbColumn.cs" />
+    <Compile Include="Database\Schema\DbTable.cs" />
+    <Compile Include="Database\Schema\MungType.cs" />
+    <Compile Include="Database\Vendor\Abstract\DbBulkInserter.cs" />
+    <Compile Include="Database\Vendor\Abstract\DbSchemaReader.cs" />
+    <Compile Include="Database\Vendor\Abstract\DbTypeConverter.cs" />
+    <Compile Include="Database\Vendor\PostgreSQL\PostgresqlBulkInserter.cs" />
+    <Compile Include="Database\Vendor\PostgreSQL\PostgresqlSchemaReader.cs" />
+    <Compile Include="Database\Vendor\PostgreSQL\PostgresqlTypeConverter.cs" />
+    <Compile Include="Database\Vendor\SqlServer\SqlServerTypeConverter.cs" />
+    <Compile Include="Database\Vendor\SqlServer\SqlServerBulkInserter.cs" />
+    <Compile Include="Database\Vendor\SqlServer\SqlServerSchemaReader.cs" />
     <Compile Include="Database\IDataReaderExtensions.cs" />
     <Compile Include="Database\DbConnectionExtensions.cs" />
     <Compile Include="Performance\SimpleTimer.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Strings\StringLineReader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GrowingData.Utilities.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

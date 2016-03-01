@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using GrowingData.Utilities.Csv;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 	public abstract class DbBulkInserter {
 
 		public abstract bool CreateTable(DbTable tbl);

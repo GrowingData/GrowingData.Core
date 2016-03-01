@@ -4,7 +4,7 @@ using NpgsqlTypes;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GrowingData.Utilities.Csv {
+namespace GrowingData.Utilities.Database {
 	public class PostgresqlType {
 
 		public string InfoSchemaName;
@@ -22,7 +22,7 @@ namespace GrowingData.Utilities.Csv {
 		}
 
 	}
-	public class PostgresqlDbTypeConverter : DbTypeConverter {
+	public class PostgresqlTypeConverter : DbTypeConverter {
 
 		public static HashSet<string> IgnoreTypes = new HashSet<string>() {
 			"json"

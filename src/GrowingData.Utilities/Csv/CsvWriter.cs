@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using GrowingData.Utilities.Database;
 
 namespace GrowingData.Utilities.Csv {
 	public class CsvWriter : IDisposable {
