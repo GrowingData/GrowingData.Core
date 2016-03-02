@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net45": {
+      "wrappedProject": "../../GrowingData.Utilities/GrowingData.Utilities.csproj",
+      "bin": {
+        "assembly": "../../GrowingData.Utilities/obj/{configuration}/GrowingData.Utilities.dll",
+        "pdb": "../../GrowingData.Utilities/obj/{configuration}/GrowingData.Utilities.pdb"
+      },
+      "dependencies": {
+        "Newtonsoft.Json": "8.0.2",
+        "Npgsql": "3.0.5"
+      }
+    }
+  }
+}
