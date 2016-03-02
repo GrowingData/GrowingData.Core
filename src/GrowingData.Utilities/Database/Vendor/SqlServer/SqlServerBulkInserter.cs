@@ -14,29 +14,43 @@ namespace GrowingData.Utilities.Database {
 
 		protected Func<SqlConnection> _connectionFactory;
 
-		public SqlServerBulkInserter(Func<DbConnection> targetConnection, string targetSchema, string targetTable)
-			: base(targetConnection, targetSchema, targetTable) {
+		public SqlServerBulkInserter(Func<DbConnection> targetConnection)
+			: base(targetConnection) {
 
 			_connectionFactory = () => {
 				return targetConnection() as SqlConnection;
 			};
 
-
-			// Make sure that the schema exists
-			//CreateSchemaIfRequired(targetSchema);
 		}
 
 
-		public override DbTable GetDbSchema() {
+		public override DbTable GetDbSchema(string schema, string table) {
 			var schemaReader = new SqlServerSchemaReader(_connectionFactory);
-			return schemaReader.GetTables(_targetSchema, _targetTable).FirstOrDefault();
+			return schemaReader.GetTables(schema, table).FirstOrDefault();
 		}
 
-		public override bool BulkInsert(DbTable table, CsvReader reader) {
+		public override bool BulkInsert(string schemaName, string tableName, CsvReader reader) {
+
+
 
 			using (var cn = _connectionFactory()) {
 				using (SqlBulkCopy copy = new SqlBulkCopy(cn)) {
-					//copy.ColumnMappings = new SqlBulkCopyColumnMappingCollection();
+
+					var existingTable = GetDbSchema(schemaName, tableName);
+					var readerTable = new DbTable(tableName, schemaName);
+
+					for (var i = 0; i < reader.Columns.Count; i++) {
+						var column = reader.Columns[i];
+						readerTable.Columns.Add(column);
+					}
+
+					if (existingTable == null) {
+						CreateTable(readerTable);
+					}
+
+					var table = GetDbSchema(schemaName, tableName);
+
+					// Make sure the mappings are correct
 					for (var i = 0; i < reader.Columns.Count; i++) {
 						var column = reader.Columns[i].ColumnName;
 						var sourceOrdinal = i;
@@ -66,17 +80,59 @@ namespace GrowingData.Utilities.Database {
 		}
 
 
-		public bool CreateSchemaIfRequired(string schemaName) {
-			var oldSchema = GetDbSchema();
-			if (oldSchema == null) {
-				var cmd = $"CREATE SCHEMA {schemaName}";
-				ExecuteCommand(cmd);
+		public override bool BulkInsert(string schemaName, string tableName, DbDataReader reader, Action<long> eachRow) {
+			using (var cn = _connectionFactory()) {
+				using (SqlBulkCopy copy = new SqlBulkCopy(cn)) {
+
+					var existingTable = GetDbSchema(schemaName, tableName);
+					var readerTable = new DbTable(tableName, schemaName);
+
+					for (var i = 0; i < reader.FieldCount; i++) {
+						var columnName = reader.GetName(i);
+						var columnType = reader.GetFieldType(i);
+
+						var column = new DbColumn(columnName, MungType.Get(columnType));
+						readerTable.Columns.Add(column);
+					}
+
+					if (existingTable == null) {
+						CreateTable(readerTable);
+					}
+
+					var table = GetDbSchema(schemaName, tableName);
+
+					for (var i = 0; i < reader.FieldCount; i++) {
+						var column = reader.GetName(i);
+						var sourceOrdinal = i;
+						var destinationOrdinal = table.Columns.FindIndex(x => x.ColumnName == column);
+
+						if (destinationOrdinal == -1) {
+							var msg = string.Format("Unable to resolve column mapping, column: {0} was not found in destination table {1}",
+								column,
+								table.TableName
+							);
+							throw new Exception(msg);
+						}
+						copy.ColumnMappings.Add(new SqlBulkCopyColumnMapping(i, destinationOrdinal));
+					}
+
+					copy.DestinationTableName = string.Format("[{0}].[{1}]", table.SchemaName, table.TableName);
+
+					copy.BatchSize = 1000;
+					copy.NotifyAfter = 1;
+					copy.SqlRowsCopied += (sender, e) => {
+						eachRow(e.RowsCopied);
+					};
+					copy.BulkCopyTimeout = 9999999;
+
+					copy.WriteToServer(reader);
+				}
+
 			}
 			return true;
 		}
 
-
-		public override bool BulkInsert(DbDataReader reader, Action<DbDataReader> eachRow) {
+		private void Copy_SqlRowsCopied(object sender, SqlRowsCopiedEventArgs e) {
 			throw new NotImplementedException();
 		}
 

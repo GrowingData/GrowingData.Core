@@ -35,9 +35,16 @@ namespace GrowingData.Utilities.Csv {
 		public InvalidTextMode InvalidTextAction { get; set; }
 
 
+		/// <summary>
+		/// Use excels method of double quoting quotes to escape them,
+		/// and treat "\" as a character to be escaped. 
+		/// </summary>
+		public bool ExcelQuoted { get; set; }
+
 		public CsvReaderOptions() {
 			DisableQuotedFields = false;
 			InvalidTextAction = InvalidTextMode.Throw;
+			ExcelQuoted = true;
 		}
 
 	}

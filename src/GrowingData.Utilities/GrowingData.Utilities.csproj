@@ -54,7 +54,7 @@
     <Compile Include="Csv\Helper\CsvReaderOptions.cs" />
     <Compile Include="Csv\Helper\LineReader.cs" />
     <Compile Include="Csv\CsvReader.cs" />
-    <Compile Include="Csv\CsvSerializer.cs" />
+    <Compile Include="Csv\CsvConverter.cs" />
     <Compile Include="Csv\CsvWriter.cs" />
     <Compile Include="Database\Schema\DbColumn.cs" />
     <Compile Include="Database\Schema\DbTable.cs" />

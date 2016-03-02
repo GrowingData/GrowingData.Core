@@ -24,6 +24,7 @@ namespace GrowingData.Utilities.Csv {
 		private bool _isReading = false;
 		private bool _isEOF = false;
 
+		private long _newLineCount = 0;
 
 		public int LineNumber { get { return _lineNumber; } }
 		public bool IsReading { get { return _isReading; } }
@@ -74,7 +75,11 @@ namespace GrowingData.Utilities.Csv {
 
 		private int ReadChar() {
 			_columnNumber++;
-			return _reader.Read();
+			var c = _reader.Read();
+			if (c == (int)'\n') {
+				_newLineCount++;
+			}
+			return c;
 		}
 		private int PeekChar() {
 			return _reader.Peek();
@@ -111,12 +116,32 @@ namespace GrowingData.Utilities.Csv {
 				if (allowQuotedFields && c == quoteChar && state != State.AfterProcessingText) {
 					if (state == State.InQuotedString) {
 						// If we are in a quoted string, then end the quoted string if we get the 
-						// quote character. Unless its prefixed with a "\" to escape it.
+						// quote character. Unless its prefixed with a "\" or quotechar to escape it (provided
+						// that the field doesn't look like '""',)
 						//if (PeekChar() == (int)quoteChar || lastChar=='\\') {
 						//	ReadChar();
-						if (lastChar == '\\') {
+						
+						if (lastChar == '\\' && !_opts.ExcelQuoted) {
 							sb.Append(c);
 						} else {
+							// Also allow double quote char ("") to escape a quote char, as long as its not the first 
+							// character
+							if (_opts.ExcelQuoted) {
+								// Except where a field is  """Something that should be quoted"".
+								if (PeekChar() == (int)quoteChar) {
+									// Is it a double quote, or is it the end of the field?
+
+									// The quote
+									ReadChar();
+
+									if (PeekChar() == (int)fieldSeparatorChar && sb.Length == 1) {
+										state = State.AfterProcessingText;
+									} else {
+										sb.Append("\\" + c);
+										continue;
+									}
+								}
+							}
 
 							// Keep the '"' quote characters because I want them so I can use the JSON serializer
 							sb.Append(quoteChar);
@@ -129,6 +154,9 @@ namespace GrowingData.Utilities.Csv {
 						state = State.InQuotedString;
 					}
 				} else if (state == State.InQuotedString) {
+					if (_opts.ExcelQuoted && c == '\\') {
+						sb.Append('\\');
+					}
 					sb.Append(c);
 				} else if (c == fieldSeparatorChar) {
 					string res = sb.ToString();

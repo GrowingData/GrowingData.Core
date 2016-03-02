@@ -49,7 +49,8 @@ namespace GrowingData.Utilities.Csv {
 
 
 			for (var i = 0; i < columnHeaders.Length; i++) {
-				var header = columnHeaders[i];
+				// Unquote headers
+				var header = columnHeaders[i].Replace("\"", "");
 				var splitHeader = header.Split(':');
 
 
@@ -61,6 +62,9 @@ namespace GrowingData.Utilities.Csv {
 					var mungType = MungType.Parse(typeHeader);
 
 					columns[i] = new DbColumn(columnName, mungType);
+				} else {
+					columns[i] = new DbColumn(header, MungType.Get(MungTypeCode.String));
+
 				}
 			}
 			_columns = columns.ToList();
@@ -116,7 +120,7 @@ namespace GrowingData.Utilities.Csv {
 				FieldNumber = fieldIndex
 			};
 
-			return MsvConverter.Read(val, _columns[fieldIndex].MungType.DatabaseType, readerState);
+			return CsvConverter.Read(val, _columns[fieldIndex].MungType.DatabaseType, readerState);
 
 		}
 
@@ -222,7 +226,7 @@ namespace GrowingData.Utilities.Csv {
 
 		public override bool IsDBNull(int ordinal) {
 			var val = _cursor.Current[ordinal].ToLower();
-			return MsvConverter.IsDBNull(val);
+			return CsvConverter.IsDBNull(val);
 
 		}
 

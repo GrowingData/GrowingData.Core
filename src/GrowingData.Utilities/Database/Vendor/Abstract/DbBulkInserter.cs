@@ -10,41 +10,27 @@ namespace GrowingData.Utilities.Database {
 	public abstract class DbBulkInserter {
 
 		public abstract bool CreateTable(DbTable tbl);
-		public abstract bool BulkInsert(DbTable schema, CsvReader reader);
-		public abstract bool BulkInsert(DbDataReader reader, Action<DbDataReader> eachRow);
+		public abstract bool BulkInsert(string schemaName, string tableName, CsvReader reader);
+		public abstract bool BulkInsert(string schemaName, string tableName, DbDataReader reader, Action<long> callback);
 		public abstract bool ModifySchema(DbTable oldSchema, DbTable newSchema);
 
 
-		public abstract DbTable GetDbSchema();
+		public bool BulkInsert(string schemaName, string tableName, DbDataReader reader) {
+			return BulkInsert(schemaName, tableName, reader, null);
+		}
 
-		protected string _targetSchema;
-		protected string _targetTable;
+		public abstract DbTable GetDbSchema(string schema, string table);
 
-		public string Schema { get { return _targetSchema; } }
-		public string TableName { get { return _targetTable; } }
 
-		protected DbBulkInserter(Func<DbConnection> targetConnection, string targetSchema, string targetTable) {
-			_targetSchema = targetSchema;
-			_targetTable = targetTable;
+		protected DbBulkInserter(Func<DbConnection> targetConnection) {
 
 		}
 
-		public bool Execute(string filename) {
+		public bool Execute(string targetSchema, string targetTable, string filename) {
 			using (var stream = File.OpenText(filename)) {
 				using (var reader = new CsvReader(stream)) {
-					var currentSchema = new DbTable(_targetTable, _targetSchema, reader.Columns);
-					var oldSchema = GetDbSchema();
 
-					// Check / Update the schema in the DB
-					if (oldSchema == null) {
-						CreateTable(currentSchema);
-					} else {
-						ModifySchema(oldSchema, currentSchema);
-					}
-
-					var newSchema = GetDbSchema();
-
-					BulkInsert(newSchema, reader);
+					BulkInsert(targetSchema, targetTable, reader);
 				}
 
 			}

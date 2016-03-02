@@ -35,7 +35,7 @@ namespace GrowingData.Utilities.Csv {
 			}
 
 			for (var i = 0; i < _columns.Count; i++) {
-				_writer.Write(MsvConverter.Serialize(reader[_columns[i].ColumnName]));
+				_writer.Write(CsvConverter.Serialize(reader[_columns[i].ColumnName]));
 				_writer.Write("\t");
 			}
 			_writer.Write("\n");
@@ -52,7 +52,7 @@ namespace GrowingData.Utilities.Csv {
 
 			for (var i = 0; i < _columns.Count; i++) {
 				if (reader.ContainsKey(_columns[i].ColumnName)) {
-					_writer.Write(MsvConverter.Serialize(reader[_columns[i].ColumnName]));
+					_writer.Write(CsvConverter.Serialize(reader[_columns[i].ColumnName]));
 					_writer.Write("\t");
 				} else {
 					_writer.Write("NULL\t");
