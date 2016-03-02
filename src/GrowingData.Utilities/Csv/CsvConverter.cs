@@ -14,7 +14,7 @@ namespace GrowingData.Utilities.Csv {
 			if (o == null || o == DBNull.Value) {
 				return "NULL";
 			}
-			
+
 			return Newtonsoft.Json.JsonConvert.SerializeObject(o);
 		}
 
@@ -31,7 +31,12 @@ namespace GrowingData.Utilities.Csv {
 				return DBNull.Value;
 			}
 
-			if (type == DbType.String) return val;
+			if (type == DbType.String) {
+				if (val.StartsWith("\"") && val.EndsWith("\"")) {
+					val = val.Substring(1, val.Length - 2);
+				}
+				return val;
+			}
 			if (type == DbType.DateTime) return JsonConvert.DeserializeObject<DateTime>(val);
 			if (type == DbType.Boolean) return JsonConvert.DeserializeObject<bool>(val);
 			if (type == DbType.Single) return JsonConvert.DeserializeObject<double>(val);
