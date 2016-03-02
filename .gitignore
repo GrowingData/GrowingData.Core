@@ -5,6 +5,7 @@ bin
 *.tmp
 *.pyc
 *.pyc
+*.nupkg
 .DS_Store
 packages
 src/data/**
