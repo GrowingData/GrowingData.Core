@@ -57,6 +57,7 @@
     <Compile Include="Csv\CsvConverter.cs" />
     <Compile Include="Csv\CsvWriter.cs" />
     <Compile Include="Database\Schema\DbColumn.cs" />
+    <Compile Include="Database\Schema\DbRow.cs" />
     <Compile Include="Database\Schema\DbTable.cs" />
     <Compile Include="Database\Schema\MungType.cs" />
     <Compile Include="Database\Vendor\Abstract\DbBulkInserter.cs" />

@@ -12,17 +12,56 @@ namespace GrowingData.Utilities.Database {
 	public static class DbConnectionExtensions {
 
 		public static int DEFAULT_TIMEOUT = 0;
+		public static char DEFAULT_PARAMETER_PREFIX = '@';
+		
+
+		public static List<string> SqlParameterNames(string sql) {
+			return SqlParameterNames(sql, DEFAULT_PARAMETER_PREFIX);
+		}
+
+		public static List<string> SqlParameterNames(string sql, char parameterPrefix) {
+
+			var parameters = new HashSet<string>();
+			var inVariable = false;
+			var buffer = new StringBuilder();
+			for (var i = 0; i < sql.Length; i++) {
+				var c = sql[i];
+				if (inVariable) {
+					if (char.IsLetterOrDigit(c) || c == '_') {
+						buffer.Append(c);
+					} else {
+						var p = buffer.ToString();
+						if (p.Length > 0 && !parameters.Contains(p)) {
+							parameters.Add(p);
+						}
+
+						buffer.Length = 0;
+					}
+				} else {
+					if (c == parameterPrefix) {
+						inVariable = true;
+					}
+				}
+			}
+			if (buffer.Length > 0) {
+				var p = buffer.ToString();
+				if (!parameters.Contains(p)) {
+					parameters.Add(p);
+				}
+			}
+
+			return parameters.ToList();
+		}
 
 
 		/// <summary>
-		/// Uses reflection to try to bind the results of a query to the 
-		/// type provided
+		/// Use refelection to bind columns to the type of object specified
 		/// </summary>
 		/// <param name="cn"></param>
 		/// <param name="sql"></param>
 		/// <param name="ps"></param>
 		/// <returns></returns>
-		public static List<T> ExecuteAnonymousSql<T>(this DbConnection cn, string sql, object ps) where T : new() {
+		public static List<T> SelectAnonymous<T>(this DbConnection cn, string sql, object ps) where T : new() {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -42,7 +81,9 @@ namespace GrowingData.Utilities.Database {
 				}
 			}
 		}
-		public static DbDataReader ExecuteSql<T>(this DbConnection cn, string sql, object ps) where T : new() {
+
+
+		public static DbDataReader ExecuteReader<T>(this DbConnection cn, string sql, object ps) where T : new() {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -88,7 +129,7 @@ namespace GrowingData.Utilities.Database {
 							// Nullable value like "int?"
 							if (Nullable.GetUnderlyingType(p.Value.PropertyType) != null) {
 								p.Value.SetValue(obj, null);
-								
+
 							}
 						}
 					}
@@ -126,7 +167,7 @@ namespace GrowingData.Utilities.Database {
 		/// <param name="sql"></param>
 		/// <param name="ps"></param>
 		/// <returns></returns>
-		public static int ExecuteSql(this DbConnection cn, string sql, object ps) {
+		public static int ExecuteScalar(this DbConnection cn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -149,7 +190,7 @@ namespace GrowingData.Utilities.Database {
 		/// <param name="sql"></param>
 		/// <param name="ps"></param>
 		/// <returns></returns>
-		public static int ExecuteSql(this DbConnection cn, DbTransaction txn, string sql, object ps) {
+		public static int ExecuteScalar(this DbConnection cn, DbTransaction txn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -163,18 +204,18 @@ namespace GrowingData.Utilities.Database {
 			}
 		}
 
-		public static async Task<int> ExecuteSqlAsync(this DbConnection cn, string sql, object ps) {
-			using (var cmd = cn.CreateCommand()) {
-				cmd.CommandText = sql;
-				cmd.CommandTimeout = DEFAULT_TIMEOUT;
-				if (ps != null) {
-					foreach (var p in ps.GetType().GetProperties()) {
-						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
-					}
-				}
-				return await cmd.ExecuteNonQueryAsync();
-			}
-		}
+		//public static async Task<int> ExecuteSqlAsync(this DbConnection cn, string sql, object ps) {
+		//	using (var cmd = cn.CreateCommand()) {
+		//		cmd.CommandText = sql;
+		//		cmd.CommandTimeout = DEFAULT_TIMEOUT;
+		//		if (ps != null) {
+		//			foreach (var p in ps.GetType().GetProperties()) {
+		//				cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+		//			}
+		//		}
+		//		return await cmd.ExecuteNonQueryAsync();
+		//	}
+		//}
 
 
 
@@ -186,7 +227,107 @@ namespace GrowingData.Utilities.Database {
 		}
 
 
-		public static List<T> DumpList<T>(this DbConnection cn, string sql, object ps) {
+
+
+		public static void SelectForEach(this DbConnection cn, string sql, object ps, Action<DbDataReader> fn) {
+			using (var cmd = cn.CreateCommand()) {
+				cmd.CommandText = sql;
+				cmd.CommandTimeout = DEFAULT_TIMEOUT;
+				if (ps != null) {
+					foreach (var p in ps.GetType().GetProperties()) {
+						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+					}
+				}
+				using (var reader = cmd.ExecuteReader()) {
+					while (reader.Read()) {
+						fn(reader);
+					}
+				}
+			}
+		}
+
+
+		public static IEnumerable<TResult> SelectForEach<TResult>(this DbConnection cn, string sql, object ps, Func<DbDataReader, TResult> fn) {
+			using (var cmd = cn.CreateCommand()) {
+				cmd.CommandText = sql;
+				cmd.CommandTimeout = DEFAULT_TIMEOUT;
+				if (ps != null) {
+					foreach (var p in ps.GetType().GetProperties()) {
+						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+					}
+				}
+				using (var reader = cmd.ExecuteReader()) {
+					while (reader.Read()) {
+						yield return fn(reader);
+					}
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// Yields a dictionary for each row that is returned from the query.
+		/// The Dictionary is the same object for each row, with its values changed.
+		/// e.g. if you try to call .ToList() on the enumeration all the rows will have
+		/// the same values as the last row.
+		/// </summary>
+		/// <param name="cn"></param>
+		/// <param name="sql"></param>
+		/// <param name="ps"></param>
+		/// <returns></returns>
+		public static IEnumerable<DbRow> SelectRows(this DbConnection cn, string sql, object ps) {
+			using (var cmd = cn.CreateCommand()) {
+				cmd.CommandTimeout = DEFAULT_TIMEOUT;
+				cmd.CommandText = sql;
+				cmd.CommandTimeout = 30;
+				if (ps != null) {
+					foreach (var p in ps.GetType().GetProperties()) {
+						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+					}
+				}
+				using (var reader = cmd.ExecuteReader()) {
+					var rowData = new DbRow();
+					while (reader.Read()) {
+						for (var i = 0; i < reader.FieldCount; i++) {
+							rowData[reader.GetName(i)] = reader[i];
+						}
+						yield return rowData;
+					}
+				}
+			}
+		}
+		/// <summary>
+		/// </summary>
+		/// <param name="cn"></param>
+		/// <param name="sql"></param>
+		/// <param name="ps"></param>
+		/// <returns></returns>
+		public static List<DbRow> SelectRowsList(this DbConnection cn, string sql, object ps) {
+			using (var cmd = cn.CreateCommand()) {
+				cmd.CommandTimeout = DEFAULT_TIMEOUT;
+				cmd.CommandText = sql;
+				cmd.CommandTimeout = 30;
+				if (ps != null) {
+					foreach (var p in ps.GetType().GetProperties()) {
+						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+					}
+				}
+				var rows = new List<DbRow>();
+				using (var reader = cmd.ExecuteReader()) {
+					while (reader.Read()) {
+						var rowData = new DbRow();
+						for (var i = 0; i < reader.FieldCount; i++) {
+							rowData[reader.GetName(i)] = reader[i];
+						}
+						rows.Add(rowData);
+					}
+				}
+				return rows;
+			}
+		}
+
+
+		public static List<T> SelectList<T>(this DbConnection cn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -207,8 +348,7 @@ namespace GrowingData.Utilities.Database {
 			}
 		}
 
-
-		public static DbDataReader DumpReader(this DbConnection cn, string sql, object ps) {
+		public static DbDataReader ExecuteReader(this DbConnection cn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandText = sql;
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
@@ -221,7 +361,7 @@ namespace GrowingData.Utilities.Database {
 			}
 		}
 
-		public static int DumpTSV(this DbConnection cn, string sql, object ps, StreamWriter writer) {
+		public static int ExecuteTSV(this DbConnection cn, string sql, object ps, StreamWriter writer) {
 			StringBuilder output = new StringBuilder();
 
 			int rowCount = 0;
@@ -268,55 +408,55 @@ namespace GrowingData.Utilities.Database {
 		}
 
 
-		public static string DumpTSVFormatted(this DbConnection cn, string sql, object ps) {
-			StringBuilder output = new StringBuilder();
+		//public static string ExecuteTSVFormatted(this DbConnection cn, string sql, object ps) {
+		//	StringBuilder output = new StringBuilder();
 
-			using (var cmd = cn.CreateCommand()) {
-				cmd.CommandTimeout = DEFAULT_TIMEOUT;
-				cmd.CommandText = sql;
-				if (ps != null) {
-					foreach (var p in ps.GetType().GetProperties()) {
-						cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
-					}
-				}
-				using (var reader = cmd.ExecuteReader()) {
-					bool isFirst = true;
-					int rowCount = 0;
-					while (reader.Read()) {
+		//	using (var cmd = cn.CreateCommand()) {
+		//		cmd.CommandTimeout = DEFAULT_TIMEOUT;
+		//		cmd.CommandText = sql;
+		//		if (ps != null) {
+		//			foreach (var p in ps.GetType().GetProperties()) {
+		//				cmd.Parameters.Add(GetParameter(cmd, "@" + p.Name, p.GetValue(ps)));
+		//			}
+		//		}
+		//		using (var reader = cmd.ExecuteReader()) {
+		//			bool isFirst = true;
+		//			int rowCount = 0;
+		//			while (reader.Read()) {
 
-						if (isFirst) {
-							//MungLog.Log.LogEvent("MungedDataWriter.Write", "Retreiving...");
-							// Recycle the same array so we're not constantly allocating
+		//				if (isFirst) {
+		//					//MungLog.Log.LogEvent("MungedDataWriter.Write", "Retreiving...");
+		//					// Recycle the same array so we're not constantly allocating
 
-							List<string> names = new List<string>();
+		//					List<string> names = new List<string>();
 
-							for (var i = 0; i < reader.FieldCount; i++) {
-								names.Add(reader.GetName(i));
-							}
-							var namesLine = string.Join("\t", names);
-							string underline = new String('-', namesLine.Length + (names.Count * 3));
+		//					for (var i = 0; i < reader.FieldCount; i++) {
+		//						names.Add(reader.GetName(i));
+		//					}
+		//					var namesLine = string.Join("\t", names);
+		//					string underline = new String('-', namesLine.Length + (names.Count * 3));
 
-							output.AppendLine(underline);
-							output.AppendLine(namesLine);
-							output.AppendLine(underline);
+		//					output.AppendLine(underline);
+		//					output.AppendLine(namesLine);
+		//					output.AppendLine(underline);
 
-							isFirst = false;
-						}
-						for (var i = 0; i < reader.FieldCount; i++) {
-							output.AppendFormat("{0}\t", Serialize(reader[i]));
-						}
-						output.Append("\n");
-
-
-						rowCount++;
-
-					}
-				}
-			}
+		//					isFirst = false;
+		//				}
+		//				for (var i = 0; i < reader.FieldCount; i++) {
+		//					output.AppendFormat("{0}\t", Serialize(reader[i]));
+		//				}
+		//				output.Append("\n");
 
 
-			return output.ToString();
-		}
+		//				rowCount++;
+
+		//			}
+		//		}
+		//	}
+
+
+		//	return output.ToString();
+		//}
 
 		public static string Serialize(object o) {
 			if (o is DateTime) {
@@ -338,12 +478,12 @@ namespace GrowingData.Utilities.Database {
 		}
 		private static string Escape(string unescaped) {
 			return unescaped
-				.Replace("\\", "\\" + "\\")		// '\' -> '\\'
-				.Replace("\"", "\\" + "\"");		// '"' -> '""'
+				.Replace("\\", "\\" + "\\")     // '\' -> '\\'
+				.Replace("\"", "\\" + "\"");        // '"' -> '""'
 		}
 
 
-		public static string DumpJsonRows(this DbConnection cn, string sql, object ps) {
+		public static string ExecuteJsonRows(this DbConnection cn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
 				cmd.CommandText = sql;
@@ -378,7 +518,7 @@ namespace GrowingData.Utilities.Database {
 		}
 
 
-		public static DataTable DumpDataTable(this DbConnection cn, string sql, object ps) {
+		public static DataTable ExecuteDataTable(this DbConnection cn, string sql, object ps) {
 			using (var cmd = cn.CreateCommand()) {
 				cmd.CommandTimeout = DEFAULT_TIMEOUT;
 				cmd.CommandText = sql;

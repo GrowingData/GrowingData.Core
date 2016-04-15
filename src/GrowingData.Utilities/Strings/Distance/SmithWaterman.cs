@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GrowingData.Core {
+namespace GrowingData.Utilities {
 	public static class SmithWaterman {
 
 		public static int DistanceSmithWaterman(this string me, string other) {

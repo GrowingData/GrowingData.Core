@@ -101,7 +101,7 @@ namespace GrowingData.Utilities {
 					_loading = true;
 
 					using (var cn = _fnConnection()) {
-						_list = cn.ExecuteAnonymousSql<T>(_sql, null);
+						_list = cn.SelectAnonymous<T>(_sql, null);
 						_map = _list.ToDictionary(_fnKeySelector);
 
 					}

@@ -1,1 +1,1 @@
-..\.nuget\NuGet.exe push GrowingData.Utilities.1.1.0.nupkg	
+..\.nuget\NuGet.exe push GrowingData.Utilities.1.2.0.nupkg	
