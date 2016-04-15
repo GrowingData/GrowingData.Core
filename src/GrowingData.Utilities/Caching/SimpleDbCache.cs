@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Threading;
 using System.Data.Common;
-using System.Data;
+
 using System.Diagnostics;
 using GrowingData.Utilities.Database;
 
+using Newtonsoft.Json;
 
 namespace GrowingData.Utilities {
 
@@ -41,6 +40,11 @@ namespace GrowingData.Utilities {
 			Load();
 		}
 
+		public string Json {
+			get {
+				return JsonConvert.SerializeObject(_map);
+			}
+		}
 
 		private void Initialize() {
 			Task.Run(() => {
