@@ -1,0 +1,50 @@
+name: GrowingData.Core Packager
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: growingdata/grwdt-build-gcp:1.0.2
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: List
+        run: |
+          dotnet --version
+          pwd
+          ls
+          echo $MY_SECRET_THING
+              # Pack and push GrowingData.Utilities
+          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$(PACKAGE_VERSION)-beta-$(CI_JOB_ID)"
+          dotnet nuget push ./pkg/GrowingData.Utilities.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Utilities.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+
+          # Pack and push GrowingData.Data
+          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$(PACKAGE_VERSION)-beta-$(CI_JOB_ID)"
+          dotnet nuget push ./pkg/GrowingData.Data.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Data.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+
+      - name: ds8 version
+        run: |
+          dotnet --version
+
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: growingdata/grwdt-build-gcp:1.0.2
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: List
+        run: |
+          # Pack and push GrowingData.Utilities
+          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo -p:PackageVersion=$(CI_COMMIT_TAG)
+          dotnet nuget push ./pkg/GrowingData.Utilities.$(CI_COMMIT_TAG).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Utilities.$(CI_COMMIT_TAG).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+
+          # Pack and push GrowingData.Data
+          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$(CI_COMMIT_TAG)"
+          dotnet nuget push ./pkg/GrowingData.Data.$(CI_COMMIT_TAG).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Data.$(CI_COMMIT_TAG).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
