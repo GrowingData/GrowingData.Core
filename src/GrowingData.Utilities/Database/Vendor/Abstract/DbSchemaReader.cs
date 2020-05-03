@@ -73,7 +73,7 @@ namespace GrowingData.Utilities.Database {
 							}
 							var type = TypeConverter.GetTypeFromInformationSchema(columnType);
 							if (type != null) {
-								tbl.Columns.Add(new DbColumn(columnName, type));
+								tbl.Columns.Add(new SqlColumn(columnName, type));
 							}
 						}
 					}

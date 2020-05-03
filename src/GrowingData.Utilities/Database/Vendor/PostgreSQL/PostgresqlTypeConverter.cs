@@ -46,7 +46,7 @@ namespace GrowingData.Utilities.Database {
 			new PostgresqlType("text", "text", NpgsqlDbType.Text, DbType.String, MungTypeCode.String),
 			new PostgresqlType("bool", "bool", NpgsqlDbType.Boolean, DbType.Boolean, MungTypeCode.Bool),
 
-			new PostgresqlType("timestamptz", "timestamp with time zone", NpgsqlDbType.TimestampTZ, DbType.DateTime, MungTypeCode.DateTime),
+			new PostgresqlType("timestamptz", "timestamp with time zone", NpgsqlDbType.TimestampTz, DbType.DateTime, MungTypeCode.DateTime),
 
 			new PostgresqlType("double precision", "double precision", NpgsqlDbType.Double, DbType.Double, MungTypeCode.Double),
 			new PostgresqlType("real", "real", NpgsqlDbType.Numeric, DbType.Decimal, MungTypeCode.Decimal),
@@ -62,10 +62,10 @@ namespace GrowingData.Utilities.Database {
 			new PostgresqlType("timestamptz", "timestamp", NpgsqlDbType.Timestamp, DbType.DateTime, MungTypeCode.DateTime),
 			new PostgresqlType("timestamptz", "date", NpgsqlDbType.Date, DbType.DateTime, MungTypeCode.DateTime),
 			new PostgresqlType("timestamptz", "time", NpgsqlDbType.Time, DbType.DateTime, MungTypeCode.DateTime),
-			new PostgresqlType("timestamptz", "time with time zone", NpgsqlDbType.TimeTZ, DbType.DateTime, MungTypeCode.DateTime),
+			new PostgresqlType("timestamptz", "time with time zone", NpgsqlDbType.TimeTz, DbType.DateTime, MungTypeCode.DateTime),
 
-			new PostgresqlType("double precision", "real", NpgsqlDbType.TimestampTZ, DbType.DateTime, MungTypeCode.Double),
-			new PostgresqlType("real", "numeric", NpgsqlDbType.TimestampTZ, DbType.DateTime, MungTypeCode.Decimal),
+			new PostgresqlType("double precision", "real", NpgsqlDbType.TimestampTz, DbType.DateTime, MungTypeCode.Double),
+			new PostgresqlType("real", "numeric", NpgsqlDbType.TimestampTz, DbType.DateTime, MungTypeCode.Decimal),
 			new PostgresqlType("bigint","smallint", NpgsqlDbType.Bigint, DbType.Int64, MungTypeCode.Integer),
 			new PostgresqlType("bigint","integer", NpgsqlDbType.Bigint, DbType.Int64, MungTypeCode.Integer)
 

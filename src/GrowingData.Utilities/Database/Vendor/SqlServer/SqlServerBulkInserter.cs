@@ -91,7 +91,7 @@ namespace GrowingData.Utilities.Database {
 						var columnName = reader.GetName(i);
 						var columnType = reader.GetFieldType(i);
 
-						var column = new DbColumn(columnName, MungType.Get(columnType));
+						var column = new SqlColumn(columnName, MungType.Get(columnType));
 						readerTable.Columns.Add(column);
 					}
 
@@ -161,7 +161,7 @@ namespace GrowingData.Utilities.Database {
 
 		}
 
-		public bool SameColumn(DbColumn a, DbColumn b) {
+		public bool SameColumn(SqlColumn a, SqlColumn b) {
 			return a.ColumnName.ToLowerInvariant() == b.ColumnName.ToLowerInvariant();
 
 		}

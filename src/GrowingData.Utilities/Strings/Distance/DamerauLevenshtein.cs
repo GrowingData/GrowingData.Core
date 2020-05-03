@@ -1,22 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright (C) 2013 - 2018 Growing Data Pty Ltd. - All rights reserved.  
+// Proprietary and confidential
+// Unauthorized copying of this file, via any medium is strictly prohibited without the express
+// permission of Growing Data Pty Ltd.
+// Contact Terence Siganakis <terence@growingdata.com.au>.
 
 namespace GrowingData.Utilities {
-	public static class DamerauLevenshtein {
+	using System;
+	using System.Linq;
 
+	/// <summary>
+	/// Defines the <see cref="DamerauLevenshtein" />
+	/// </summary>
+	public static class DamerauLevenshtein {
+		/// <summary>
+		/// The DistanceDamerauLevenshtein
+		/// </summary>
+		/// <param name="source">The <see cref="string"/></param>
+		/// <param name="target">The <see cref="string"/></param>
+		/// <param name="threshold">The <see cref="int"/></param>
+		/// <returns>The <see cref="int"/></returns>
 		public static int DistanceDamerauLevenshtein(this string source, string target, int threshold) {
 			return Distance(
 				source.Select(x => (int)x).ToArray(),
 				target.Select(x => (int)x).ToArray(),
 				threshold);
-
 		}
+
+		/// <summary>
+		/// The Distance
+		/// </summary>
+		/// <param name="source">The <see cref="int[]"/></param>
+		/// <param name="target">The <see cref="int[]"/></param>
+		/// <param name="threshold">The <see cref="int"/></param>
+		/// <returns>The <see cref="int"/></returns>
 		private static int Distance(int[] source, int[] target, int threshold) {
 
-			int length1 = source.Length;
-			int length2 = target.Length;
+			var length1 = source.Length;
+			var length2 = target.Length;
 
 			// Return trivial case - difference in string lengths exceeds threshhold
 			if (Math.Abs(length1 - length2) > threshold) { return int.MaxValue; }
@@ -27,19 +47,19 @@ namespace GrowingData.Utilities {
 				Swap(ref length1, ref length2);
 			}
 
-			int maxi = length1;
-			int maxj = length2;
+			var maxi = length1;
+			var maxj = length2;
 
-			int[] dCurrent = new int[maxi + 1];
-			int[] dMinus1 = new int[maxi + 1];
-			int[] dMinus2 = new int[maxi + 1];
+			var dCurrent = new int[maxi + 1];
+			var dMinus1 = new int[maxi + 1];
+			var dMinus2 = new int[maxi + 1];
 			int[] dSwap;
 
-			for (int i = 0; i <= maxi; i++) { dCurrent[i] = i; }
+			for (var i = 0; i <= maxi; i++) { dCurrent[i] = i; }
 
 			int jm1 = 0, im1 = 0, im2 = -1;
 
-			for (int j = 1; j <= maxj; j++) {
+			for (var j = 1; j <= maxj; j++) {
 
 				// Rotate
 				dSwap = dMinus2;
@@ -48,21 +68,21 @@ namespace GrowingData.Utilities {
 				dCurrent = dSwap;
 
 				// Initialize
-				int minDistance = int.MaxValue;
+				var minDistance = int.MaxValue;
 				dCurrent[0] = j;
 				im1 = 0;
 				im2 = -1;
 
-				for (int i = 1; i <= maxi; i++) {
+				for (var i = 1; i <= maxi; i++) {
 
-					int cost = source[im1] == target[jm1] ? 0 : 1;
+					var cost = source[im1] == target[jm1] ? 0 : 1;
 
-					int del = dCurrent[im1] + 1;
-					int ins = dMinus1[i] + 1;
-					int sub = dMinus1[im1] + cost;
+					var del = dCurrent[im1] + 1;
+					var ins = dMinus1[i] + 1;
+					var sub = dMinus1[im1] + cost;
 
 					//Fastest execution for min value of 3 integers
-					int min = (del > ins) ? (ins > sub ? sub : ins) : (del > sub ? sub : del);
+					var min = (del > ins) ? (ins > sub ? sub : ins) : (del > sub ? sub : del);
 
 					if (i > 1 && j > 1 && source[im2] == target[jm1] && source[im1] == target[j - 2])
 						min = Math.Min(min, dMinus2[im2] + cost);
@@ -76,14 +96,20 @@ namespace GrowingData.Utilities {
 				if (minDistance > threshold) { return int.MaxValue; }
 			}
 
-			int result = dCurrent[maxi];
+			var result = dCurrent[maxi];
 			return (result > threshold) ? int.MaxValue : result;
 		}
-		static void Swap<T>(ref T arg1, ref T arg2) {
-			T temp = arg1;
+
+		/// <summary>
+		/// The Swap
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="arg1">The <see cref="T"/></param>
+		/// <param name="arg2">The <see cref="T"/></param>
+		internal static void Swap<T>(ref T arg1, ref T arg2) {
+			var temp = arg1;
 			arg1 = arg2;
 			arg2 = temp;
 		}
-
 	}
 }
