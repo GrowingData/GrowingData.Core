@@ -1,30 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright (C) 2013 - 2018 Growing Data Pty Ltd. - All rights reserved.  
+// Proprietary and confidential
+// Unauthorized copying of this file, via any medium is strictly prohibited without the express
+// permission of Growing Data Pty Ltd.
+// Contact Terence Siganakis <terence@growingdata.com.au>.
 
 namespace GrowingData.Utilities {
-	public static class SmithWaterman {
+	using System;
+	using System.Collections.Generic;
 
+	/// <summary>
+	/// Defines the <see cref="SmithWaterman" />
+	/// </summary>
+	public static class SmithWaterman {
+		/// <summary>
+		/// The DistanceSmithWaterman
+		/// </summary>
+		/// <param name="me">The <see cref="string"/></param>
+		/// <param name="other">The <see cref="string"/></param>
+		/// <returns>The <see cref="int"/></returns>
 		public static int DistanceSmithWaterman(this string me, string other) {
 			var sw = new SmithWatermanAlignment(me, other);
 			return sw.ComputeSmithWaterman();
 		}
+
+		/// <summary>
+		/// The DistanceSmithWatermanAlignment
+		/// </summary>
+		/// <param name="me">The <see cref="string"/></param>
+		/// <param name="other">The <see cref="string"/></param>
+		/// <returns>The <see cref="SmithWatermanAlignment"/></returns>
 		public static SmithWatermanAlignment DistanceSmithWatermanAlignment(this string me, string other) {
 			var sw = new SmithWatermanAlignment(me, other);
 			return sw;
 		}
 	}
 
+	/// <summary>
+	/// Defines the <see cref="SmithWatermanAlignment" />
+	/// </summary>
 	public class SmithWatermanAlignment {
+		/// <summary>
+		/// Defines the one, two
+		/// </summary>
 		private string one, two;
+
+		/// <summary>
+		/// Defines the matrix
+		/// </summary>
 		private int[,] matrix;
+
+		/// <summary>
+		/// Defines the gap
+		/// </summary>
 		private int gap;
+
+		/// <summary>
+		/// Defines the match
+		/// </summary>
 		private int match;
+
+		/// <summary>
+		/// Defines the o
+		/// </summary>
 		private int o;
+
+		/// <summary>
+		/// Defines the l
+		/// </summary>
 		private int l;
+
+		/// <summary>
+		/// Defines the e
+		/// </summary>
 		private int e;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SmithWatermanAlignment"/> class.
+		/// </summary>
+		/// <param name="one">The <see cref="string"/></param>
+		/// <param name="two">The <see cref="string"/></param>
 		public SmithWatermanAlignment(string one, string two) {
 			this.one = one.ToLower();
 			this.two = two.ToLower();
@@ -37,16 +91,19 @@ namespace GrowingData.Utilities {
 
 			// initialize matrix to 0
 			matrix = new int[one.Length + 1, two.Length + 1];
-			for (int i = 0; i < one.Length; i++)
-				for (int j = 0; j < two.Length; j++)
+			for (var i = 0; i < one.Length; i++)
+				for (var j = 0; j < two.Length; j++)
 					matrix[i, j] = 0;
-
 		}
 
 		// returns the alignment score
+		/// <summary>
+		/// The ComputeSmithWaterman
+		/// </summary>
+		/// <returns>The <see cref="int"/></returns>
 		public int ComputeSmithWaterman() {
-			for (int i = 0; i < one.Length; i++) {
-				for (int j = 0; j < two.Length; j++) {
+			for (var i = 0; i < one.Length; i++) {
+				for (var j = 0; j < two.Length; j++) {
 					gap = o + (l - 1) * e;
 					if (i != 0 && j != 0) {
 						if (one[i] == two[j]) {
@@ -71,10 +128,10 @@ namespace GrowingData.Utilities {
 			}
 
 			// find the highest value
-			int longest = 0;
+			var longest = 0;
 			int iL = 0, jL = 0;
-			for (int i = 0; i < one.Length; i++) {
-				for (int j = 0; j < two.Length; j++) {
+			for (var i = 0; i < one.Length; i++) {
+				for (var j = 0; j < two.Length; j++) {
 					if (matrix[i, j] > longest) {
 						longest = matrix[i, j];
 						iL = i;
@@ -84,9 +141,9 @@ namespace GrowingData.Utilities {
 			}
 
 			// Backtrack to reconstruct the path
-			int ii = iL;
-			int jj = jL;
-			Stack<String> actions = new Stack<String>();
+			var ii = iL;
+			var jj = jL;
+			var actions = new Stack<String>();
 
 			while (ii != 0 && jj != 0) {
 				// diag case
@@ -110,16 +167,16 @@ namespace GrowingData.Utilities {
 				}
 			}
 
-			string alignOne = "";
-			string alignTwo = "";
-			string[] tmp = new string[actions.Count];
+			var alignOne = "";
+			var alignTwo = "";
+			var tmp = new string[actions.Count];
 			actions.CopyTo(tmp, 0);
 
-			Stack<string> backActions = new Stack<string>(tmp);
-			for (int z = 0; z < one.Length; z++) {
+			var backActions = new Stack<string>(tmp);
+			for (var z = 0; z < one.Length; z++) {
 				alignOne = alignOne + one[z];
 				if (actions.Count > 0) {
-					String curAction = actions.Pop();
+					var curAction = actions.Pop();
 					// Console.WriteLine(curAction);
 					if (curAction.Equals("insert")) {
 						alignOne = alignOne + "-";
@@ -131,10 +188,10 @@ namespace GrowingData.Utilities {
 				}
 			}
 
-			for (int z = 0; z < two.Length; z++) {
+			for (var z = 0; z < two.Length; z++) {
 				alignTwo = alignTwo + two[z];
 				if (backActions.Count > 0) {
-					String curAction = backActions.Pop();
+					var curAction = backActions.Pop();
 					if (curAction.Equals("delete")) {
 						alignTwo = alignTwo + "-";
 						while (backActions.Peek().Equals("delete")) {
@@ -150,10 +207,13 @@ namespace GrowingData.Utilities {
 			return longest;
 		}
 
+		/// <summary>
+		/// The printMatrix
+		/// </summary>
 		public void printMatrix() {
-			for (int i = 0; i < one.Length; i++) {
+			for (var i = 0; i < one.Length; i++) {
 				if (i == 0) {
-					for (int z = 0; z < two.Length; z++) {
+					for (var z = 0; z < two.Length; z++) {
 						if (z == 0)
 							Console.Write("   ");
 						Console.Write(two[z] + "  ");
@@ -163,7 +223,7 @@ namespace GrowingData.Utilities {
 					}
 				}
 
-				for (int j = 0; j < two.Length; j++) {
+				for (var j = 0; j < two.Length; j++) {
 					if (j == 0) {
 						Console.Write(one[i] + "  ");
 					}
@@ -173,17 +233,5 @@ namespace GrowingData.Utilities {
 			}
 			Console.WriteLine();
 		}
-
-		//public static void main(String[] args) {
-		//	// DNA sequence Test:
-		//	SmithWaterman sw = new SmithWaterman("ACACACTA", "AGCACACA");
-		//	Console.WriteLine("Alignment Score: " + sw.ComputeSmithWaterman());
-		//	sw.printMatrix();
-
-		//	sw = new SmithWaterman("gcgcgtgc", "gcaagtgca");
-		//	Console.WriteLine("Alignment Score: " + sw.ComputeSmithWaterman());
-		//	sw.printMatrix();
-		//}
 	}
-
 }

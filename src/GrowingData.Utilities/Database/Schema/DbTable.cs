@@ -7,14 +7,14 @@ namespace GrowingData.Utilities.Database {
 	public class DbTable {
 		public string TableName;
 		public string SchemaName;
-		public List<DbColumn> Columns;
+		public List<SqlColumn> Columns;
 
 		public DbTable(string tableName, string schemaName) {
 			TableName = tableName;
 			SchemaName = schemaName;
-			Columns = new List<DbColumn>();
+			Columns = new List<SqlColumn>();
 		}
-		public DbTable(string tableName, string schemaName, List<DbColumn> columns) {
+		public DbTable(string tableName, string schemaName, List<SqlColumn> columns) {
 			TableName = tableName;
 			SchemaName = schemaName;
 			Columns = columns;

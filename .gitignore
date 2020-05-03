@@ -8,4 +8,4 @@ bin
 *.nupkg
 .DS_Store
 packages
-src/data/**
+src/.vs/**

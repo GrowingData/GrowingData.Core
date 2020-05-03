@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.IO;
-using System.Threading.Tasks;
+﻿// Copyright (C) 2013 - 2018 Growing Data Pty Ltd. - All rights reserved.  
+// Proprietary and confidential
+// Unauthorized copying of this file, via any medium is strictly prohibited without the express
+// permission of Growing Data Pty Ltd.
+// Contact Terence Siganakis <terence@growingdata.com.au>.
 
 namespace GrowingData.Utilities {
-	public static class StringLike {/// <summary>
+	using System.Text.RegularExpressions;
+
+	/// <summary>
+	/// Defines the <see cref="StringLike" />
+	/// </summary>
+	public static class StringLike {
+		/// <summary>
 		/// Compares the string against a given pattern.
 		/// </summary>
 		/// <param name="str">The string.</param>
@@ -20,5 +24,18 @@ namespace GrowingData.Utilities {
 			).IsMatch(str);
 		}
 
+		/// <summary>
+		/// Removes the text between two characters.
+		///		E.g "Some text(not text)".RemoveBetween('(', ')')
+		///			=> "Some text "
+		/// </summary>
+		/// <param name="s"></param>
+		/// <param name="begin"></param>
+		/// <param name="end"></param>
+		/// <returns></returns>
+		public static string RemoveBetween(this string s, char begin, char end) {
+			var regex = new Regex(string.Format("\\{0}.*?\\{1}", begin, end));
+			return regex.Replace(s, string.Empty);
+		}
 	}
 }
