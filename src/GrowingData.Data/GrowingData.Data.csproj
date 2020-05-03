@@ -7,11 +7,9 @@
 		<Product>GrowingData.Data</Product>
 		<PackageProjectUrl>https://github.com/GrowingData/GrowingData.Core</PackageProjectUrl>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Remove="nupkg\**" />
-	  <EmbeddedResource Remove="nupkg\**" />
-	  <None Remove="nupkg\**" />
-	</ItemGroup>
+	<PropertyGroup>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="Npgsql" Version="4.1.3.1" />

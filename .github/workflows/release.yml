@@ -1,0 +1,40 @@
+name: GrowingData.Core Packager
+on:
+  push:
+    tags:
+      - release/*
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    container:
+      image: growingdata/grwdt-build-gcp:1.0.2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Check secrets
+        env: # Or as an environment variable
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        run: |
+          echo $NUGET_TOKEN
+          ls
+
+      - name: "Publish Release: GrowingData.Utilities"
+        env: # Or as an environment variable
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        run: |
+          # Pack and push GrowingData.Utilities
+          export PACKAGE_VERSION=${GITHUB_REF##*/}
+          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source -p:SymbolPackageFormat=snupkg --nologo -p:PackageVersion="${PACKAGE_VERSION}"
+          dotnet nuget push "./pkg/GrowingData.Utilities.${PACKAGE_VERSION}.nupkg" -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+
+      - name: "Publish Release: GrowingData.Data"
+        env: # Or as an environment variable
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        run: |
+          # Pack and push GrowingData.Data
+          export PACKAGE_VERSION=${GITHUB_REF##*/}
+          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source -p:SymbolPackageFormat=snupkg --nologo -p:PackageVersion="${PACKAGE_VERSION}"
+          dotnet nuget push ./pkg/GrowingData.Data.${PACKAGE_VERSION}.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
