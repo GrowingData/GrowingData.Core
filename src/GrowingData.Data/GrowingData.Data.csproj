@@ -4,7 +4,7 @@
 		<Version>3.1.1</Version>
 		<Authors>Terence Siganakis</Authors>
 		<Company>Growing Data Pty Ltd</Company>
-		<Product>GrowingData.Utilities</Product>
+		<Product>GrowingData.Data</Product>
 		<PackageProjectUrl>https://github.com/GrowingData/GrowingData.Core</PackageProjectUrl>
 	</PropertyGroup>
 	<ItemGroup>
@@ -13,9 +13,12 @@
 	  <None Remove="nupkg\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Http" Version="3.1.3" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="Nito.AsyncEx" Version="5.0.0" />
-		<PackageReference Include="Serilog" Version="2.9.0" />
+		<PackageReference Include="Npgsql" Version="4.1.3.1" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+		<PackageReference Include="YamlDotNet" Version="8.1.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\GrowingData.Utilities\GrowingData.Utilities.csproj" />
 	</ItemGroup>
 </Project>
