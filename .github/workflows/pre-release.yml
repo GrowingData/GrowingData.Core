@@ -3,7 +3,7 @@ name: GrowingData.Core Packager
 on: [push]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     container:
       image: growingdata/grwdt-build-gcp:1.0.2
