@@ -27,9 +27,8 @@ jobs:
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
           # Pack and push GrowingData.Utilities
-          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo -p:PackageVersion="${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}"
+          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source -p:SymbolPackageFormat=snupkg --nologo -p:PackageVersion="${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}"
           dotnet nuget push "./pkg/GrowingData.Utilities.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}.nupkg" -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
-          dotnet nuget push "./pkg/GrowingData.Utilities.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}.symbols.nupkg" -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
 
       - name: "Publish pre-release: GrowingData.Data"
         env: # Or as an environment variable
@@ -37,6 +36,5 @@ jobs:
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
           # Pack and push GrowingData.Data
-          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo -p:PackageVersion="${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}"
+          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source -p:SymbolPackageFormat=snupkg --nologo -p:PackageVersion="${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}"
           dotnet nuget push ./pkg/GrowingData.Data.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
-          dotnet nuget push ./pkg/GrowingData.Data.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}.symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
