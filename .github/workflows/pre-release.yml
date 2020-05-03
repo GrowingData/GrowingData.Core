@@ -18,7 +18,7 @@ jobs:
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
           echo $NUGET_TOKEN
-          echo $PACKAGE_VERSION
+          echo ${PACKAGE_VERSION}
           ls
 
       - name: "Publish pre-release: GrowingData.Utilities"
@@ -27,9 +27,9 @@ jobs:
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
           # Pack and push GrowingData.Utilities
-          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER "
-          dotnet nuget push ./pkg/GrowingData.Utilities.$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER .nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
-          dotnet nuget push ./pkg/GrowingData.Utilities.$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER .symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion=${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}
+          dotnet nuget push ./pkg/GrowingData.Utilities.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER} .nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Utilities.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER} .symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
 
       - name: "Publish pre-release: GrowingData.Data"
         env: # Or as an environment variable
@@ -37,6 +37,6 @@ jobs:
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
           # Pack and push GrowingData.Data
-          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER "
-          dotnet nuget push ./pkg/GrowingData.Data.$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER .nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
-          dotnet nuget push ./pkg/GrowingData.Data.$PACKAGE_VERSION-beta-$GITHUB_RUN_NUMBER .symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion=${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER}
+          dotnet nuget push ./pkg/GrowingData.Data.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER} .nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ./pkg/GrowingData.Data.${PACKAGE_VERSION}-beta-${GITHUB_RUN_NUMBER} .symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
