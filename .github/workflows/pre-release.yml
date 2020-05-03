@@ -9,8 +9,10 @@ jobs:
       image: growingdata/grwdt-build-gcp:1.0.2
 
     steps:
-      - name: Check secrets
+      - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Check secrets
         env: # Or as an environment variable
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
@@ -20,7 +22,6 @@ jobs:
           ls
 
       - name: "Publish pre-release: GrowingData.Utilities"
-        uses: actions/checkout@v2
         env: # Or as an environment variable
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
