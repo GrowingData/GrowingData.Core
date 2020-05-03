@@ -32,7 +32,6 @@ jobs:
           dotnet nuget push ./pkg/GrowingData.Utilities.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
 
       - name: "Publish pre-release: GrowingData.Data"
-        uses: actions/checkout@v2
         env: # Or as an environment variable
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
