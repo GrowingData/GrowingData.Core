@@ -9,22 +9,33 @@ jobs:
       image: growingdata/grwdt-build-gcp:1.0.2
 
     steps:
-      - uses: actions/checkout@v2
-      - name: List
+      - name: Check secrets
+        uses: actions/checkout@v2
         env: # Or as an environment variable
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
           PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
         run: |
-          dotnet --version
-          pwd
-          ls
           echo $NUGET_TOKEN
           echo $PACKAGE_VERSION
-              # Pack and push GrowingData.Utilities
+          ls
+
+      - name: "Publish pre-release: GrowingData.Utilities"
+        uses: actions/checkout@v2
+        env: # Or as an environment variable
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
+        run: |
+          # Pack and push GrowingData.Utilities
           dotnet pack ./src/GrowingData.Utilities/GrowingData.Utilities.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$(PACKAGE_VERSION)-beta-$(CI_JOB_ID)"
           dotnet nuget push ./pkg/GrowingData.Utilities.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
           dotnet nuget push ./pkg/GrowingData.Utilities.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).symbols.nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
 
+      - name: "Publish pre-release: GrowingData.Data"
+        uses: actions/checkout@v2
+        env: # Or as an environment variable
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          PACKAGE_VERSION: ${{ secrets.PACKAGE_VERSION }}
+        run: |
           # Pack and push GrowingData.Data
           dotnet pack ./src/GrowingData.Data/GrowingData.Data.csproj -o ./pkg --include-symbols --include-source --nologo --version-suffix -p:PackageVersion="$(PACKAGE_VERSION)-beta-$(CI_JOB_ID)"
           dotnet nuget push ./pkg/GrowingData.Data.$(PACKAGE_VERSION)-beta-$(CI_JOB_ID).nupkg -k $NUGET_TOKEN -s https://api.nuget.org/v3/index.json
