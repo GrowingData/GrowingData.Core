@@ -1,9 +1,12 @@
 name: GrowingData.Core Packager
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  publish:
+  publish-beta:
     runs-on: ubuntu-latest
     container:
       image: growingdata/grwdt-build-gcp:1.0.2

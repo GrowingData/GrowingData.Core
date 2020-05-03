@@ -5,7 +5,7 @@ on:
       - release/*
 
 jobs:
-  release:
+  publish-release:
     runs-on: ubuntu-latest
     container:
       image: growingdata/grwdt-build-gcp:1.0.2
