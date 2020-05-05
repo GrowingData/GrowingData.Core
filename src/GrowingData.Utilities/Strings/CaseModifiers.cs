@@ -57,22 +57,7 @@ namespace GrowingData.Utilities {
 			if (name == null) {
 				return null;
 			}
-
-
-			var renamed = new StringBuilder();
-			for (var i = 0; i < name.Length; i++) {
-				if (name[i] == ' ' || name[i] == '-' || name[i] == '_') {
-					renamed.Append("_");
-					continue;
-				}
-				if (!char.IsLetterOrDigit(name[i])) {
-					// Ignore invalid characters
-					continue;
-				}
-
-				renamed.Append(char.ToLower(name[i]));
-			}
-			return renamed.ToString();
+			return ToDnsSafeLabel(name).Replace("-", "_");
 		}
 	}
 }
